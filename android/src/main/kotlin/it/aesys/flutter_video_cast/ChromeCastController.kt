@@ -4,7 +4,6 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import android.view.ContextThemeWrapper
-import android.widget.ArrayAdapter
 import androidx.mediarouter.app.MediaRouteButton
 import com.google.android.gms.cast.MediaInfo
 import com.google.android.gms.cast.MediaLoadOptions
@@ -36,17 +35,16 @@ class ChromeCastController(
     lateinit var subtitle: String
 
     init {
-        CastButtonFactory.setUpMediaRouteButton(context, chromeCastButton)
+        CastButtonFactory.setUpMediaRouteButton(context!!, chromeCastButton)
         channel.setMethodCallHandler(this)
     }
 
     private fun loadMedia(args: Any?) {
         if (args is Map<*, *>) {
-            val url = args["url"] as? String
-            subtitle = args["subTitle"] as String
+            val url: String = (args["url"] ?: "") as String
+            subtitle = (args["subTitle"] ?: "") as String
             val meta = MediaMetadata(MediaMetadata.MEDIA_TYPE_GENERIC)
-            meta.putString(MediaMetadata.KEY_TITLE, args["title"] as? String)
-//            meta.putString(MediaMetadata.KEY_SUBTITLE, args["subTitle"] as? String)
+            meta.putString(MediaMetadata.KEY_TITLE, (args["title"] ?: "") as String)
             (args["image"] as? String).let { imageUrl ->
                 meta.addImage(WebImage(Uri.parse(imageUrl)))
             }
@@ -73,12 +71,6 @@ class ChromeCastController(
     }
 
     private fun play() {
-//        val array = LongArray(1,init = {1})
-//
-//        sessionManager?.currentCastSession?.remoteMediaClient?.setActiveMediaTracks(
-//            array
-//        )
-
         val request = sessionManager?.currentCastSession?.remoteMediaClient?.play()
         request?.addStatusListener(this)
     }
@@ -156,10 +148,6 @@ class ChromeCastController(
 
     override fun getView() = chromeCastButton
 
-    override fun dispose() {
-
-    }
-
     // Flutter methods handling
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
@@ -215,51 +203,47 @@ class ChromeCastController(
 
     // SessionManagerListener
 
-    override fun onSessionStarted(p0: Session?, p1: String?) {
+    override fun onSessionStarted(p0: Session, p1: String) {
         channel.invokeMethod("chromeCast#didStartSession", null)
     }
 
-    override fun onSessionEnded(p0: Session?, p1: Int) {
+    override fun onSessionEnded(p0: Session, p1: Int) {
         channel.invokeMethod("chromeCast#didEndSession", null)
     }
 
-    override fun onSessionResuming(p0: Session?, p1: String?) {
+    override fun onSessionResuming(p0: Session, p1: String) {
 
     }
 
-    override fun onSessionResumed(p0: Session?, p1: Boolean) {
+    override fun onSessionResumed(p0: Session, p1: Boolean) {
 
     }
 
-    override fun onSessionResumeFailed(p0: Session?, p1: Int) {
+    override fun onSessionResumeFailed(p0: Session, p1: Int) {
 
     }
 
-    override fun onSessionSuspended(p0: Session?, p1: Int) {
+    override fun onSessionSuspended(p0: Session, p1: Int) {
 
     }
 
-    override fun onSessionStarting(p0: Session?) {
+    override fun onSessionStarting(p0: Session) {
     }
 
-    override fun onSessionEnding(p0: Session?) {
+    override fun onSessionEnding(p0: Session) {
 
     }
 
-    override fun onSessionStartFailed(p0: Session?, p1: Int) {
+    override fun onSessionStartFailed(p0: Session, p1: Int) {
 
     }
 
     // PendingResult.StatusListener
 
-    override fun onComplete(status: Status?) {
-        if (status?.isSuccess == true) {
+    override fun onComplete(status: Status) {
+        if (status.isSuccess) {
             channel.invokeMethod("chromeCast#requestDidComplete", null)
-
-//            // set tracks
-//            sessionManager?.currentCastSession?.remoteMediaClient?.setActiveMediaTracks(
-//                LongArray(1,init = {1})
-//            )
         }
     }
+
 }

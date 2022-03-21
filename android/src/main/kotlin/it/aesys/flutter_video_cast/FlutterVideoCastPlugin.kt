@@ -1,6 +1,6 @@
 package it.aesys.flutter_video_cast
 
-import androidx.annotation.NonNull;
+import androidx.annotation.NonNull
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
