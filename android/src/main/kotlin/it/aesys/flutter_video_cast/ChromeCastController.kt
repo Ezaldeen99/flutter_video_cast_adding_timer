@@ -148,6 +148,10 @@ class ChromeCastController(
 
     override fun getView() = chromeCastButton
 
+    override fun dispose(){
+
+    }
+
     // Flutter methods handling
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
